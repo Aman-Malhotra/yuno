@@ -2,6 +2,93 @@
 
 Multi-agent workflow platform with memory, real public-API tools, and a live workflow canvas. Backend in FastAPI + LangGraph + Postgres + Redis + Neo4j; frontend in React + Vite + React Flow.
 
+## Tour
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/1.workspaces.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/1.workspaces.png" alt="Workspaces" width="100%" />
+      </a>
+      <sub><b>1. Workspaces</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/2.workflows.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/2.workflows.png" alt="Workflows" width="100%" />
+      </a>
+      <sub><b>2. Workflows</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/3.workflow.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/3.workflow.png" alt="Workflow builder canvas" width="100%" />
+      </a>
+      <sub><b>3. Workflow builder</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/4.agents.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/4.agents.png" alt="Agents" width="100%" />
+      </a>
+      <sub><b>4. Agents</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/5.agent_details.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/5.agent_details.png" alt="Agent detail" width="100%" />
+      </a>
+      <sub><b>5. Agent detail</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/6.agent_edit.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/6.agent_edit.png" alt="Agent edit" width="100%" />
+      </a>
+      <sub><b>6. Agent edit</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/7.tools.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/7.tools.png" alt="Tools" width="100%" />
+      </a>
+      <sub><b>7. Tools</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/8.tool_details.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/8.tool_details.png" alt="Tool detail" width="100%" />
+      </a>
+      <sub><b>8. Tool detail</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/9.llm_providers.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/9.llm_providers.png" alt="LLM providers" width="100%" />
+      </a>
+      <sub><b>9. LLM providers</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/10.costs.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/10.costs.png" alt="Costs" width="100%" />
+      </a>
+      <sub><b>10. Costs</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/11.logs.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/11.logs.png" alt="Logs and run history" width="100%" />
+      </a>
+      <sub><b>11. Logs / run history</b></sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="docs/screenshots/12.settings.png" target="_blank" rel="noopener noreferrer">
+        <img src="docs/screenshots/12.settings.png" alt="Settings" width="100%" />
+      </a>
+      <sub><b>12. Settings</b></sub>
+    </td>
+  </tr>
+</table>
+
+Click any thumbnail to open the full-size capture.
+
 ## Quick start (single command)
 
 ```bash
