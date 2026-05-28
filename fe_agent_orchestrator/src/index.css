@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Aeonik Fono Pro (TRIAL) ─────────────────────────────────────── */
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Thin.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Air.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Light.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Regular.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Medium.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-SemiBold.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Bold.otf") format("opentype");
+}
+@font-face {
+  font-family: "Aeonik Fono";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/aeonik-fono/AeonikFonoProTRIAL-Black.otf") format("opentype");
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  @apply bg-canvas font-sans text-ink antialiased;
+  /* Light-mode paper grain — very subtle dark dots on the warm bg */
+  background-image:
+    radial-gradient(rgba(20, 22, 29, 0.018) 1px, transparent 1px),
+    radial-gradient(rgba(20, 22, 29, 0.012) 1px, transparent 1px);
+  background-size:
+    3px 3px,
+    11px 11px;
+}
+
+@layer utilities {
+  .eyebrow {
+    @apply text-[10px] font-medium uppercase tracking-eyebrow text-ink-mute;
+  }
+
+  .hairline-x {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      theme("colors.canvas.ruleStrong") 24%,
+      theme("colors.canvas.ruleStrong") 76%,
+      transparent
+    );
+    height: 1px;
+  }
+}

@@ -1,0 +1,58 @@
+# OS / editor
+.DS_Store
+.idea
+*.swp
+*.swo
+*.suo
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# Node — covers any current or future workspace
+**/node_modules
+**/dist
+**/dist-ssr
+**/build
+**/coverage
+**/.vite
+**/.cache
+**/.eslintcache
+**/.prettiercache
+**/*.tsbuildinfo
+
+# Logs
+**/logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Env / secrets — never commit real values, but DO commit the .env.example
+# templates so a fresh clone has a starting point.
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+# Allow checked-in templates back
+!.env.example
+!**/.env.example
+
+# Python (if backend ends up Python)
+**/__pycache__
+**/*.pyc
+**/.venv
+**/venv
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+# Claude Code — keep skills and project config tracked, ignore local-only state
+.claude/settings.local.json
+.claude/projects
+.claude/todos
+.claude/shell-snapshots
+.claude/statsig
+.claude/ide

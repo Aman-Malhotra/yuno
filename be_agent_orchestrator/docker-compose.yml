@@ -1,0 +1,87 @@
+services:
+  api:
+    build: .
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn app.main:app --host 0.0.0.0 --port 3001 --reload --reload-dir app"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent@postgres:3002/agent_orchestrator
+      REDIS_URL: redis://redis:3003/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+    # Auto-recover from crashes; survive Docker daemon restarts (unless we
+    # explicitly `docker compose down`). Same policy on the worker so a
+    # bad job that crashes the process doesn't drop the queue indefinitely.
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: uv run arq app.worker.arq_app.WorkerSettings
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent@postgres:3002/agent_orchestrator
+      REDIS_URL: redis://redis:3003/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      # Source bind-mount so code changes land without a rebuild — restart
+      # the container to reload (arq has no hot-reload).
+      - .:/app
+      # Named volume shadows the bind-mount for .venv only, keeping the
+      # image's pre-installed deps intact. Without this, the host overlay
+      # hides /app/.venv and `uv run` would have to re-sync on every boot.
+      - worker_venv:/app/.venv
+    restart: unless-stopped
+    # Scale horizontally by bumping replicas — arq workers coordinate
+    # via Redis, no extra config required. Start with 1; raise when
+    # queue depth (arq:queue ZCARD) consistently > 0.
+    deploy:
+      replicas: 1
+
+  postgres:
+    # pgvector image = postgres:16 + the `vector` extension preinstalled.
+    # mem0's pgvector backend needs it; rest of the app uses the same DB.
+    image: pgvector/pgvector:pg16
+    command: ["postgres", "-p", "3002"]
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: agent_orchestrator
+      PGPORT: "3002"
+    ports:
+      - "3002:3002"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_orchestrator -p 3002"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--port", "3003"]
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+
+  # Graph memory store for mem0 is provisioned on Neo4j Aura (cloud);
+  # see NEO4J_URL / NEO4J_USER / NEO4J_PASSWORD in .env. To run a local
+  # Neo4j instead, restore the `neo4j` service from git history and flip
+  # NEO4J_URL back to `bolt://neo4j:7687`.
+
+volumes:
+  postgres_data:
+  worker_venv:

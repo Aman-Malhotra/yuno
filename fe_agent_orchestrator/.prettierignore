@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+.cache
+.vite
+logs
+*.log
+package-lock.json

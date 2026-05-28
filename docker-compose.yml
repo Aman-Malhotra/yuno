@@ -1,0 +1,130 @@
+# Top-level stack for the Yuno demo. Single-command boot:
+#
+#     cp .env.example .env
+#     # paste OPENROUTER_API_KEY_MEMORY + TELEGRAM_* in .env
+#     docker compose up --build
+#
+# Brings up:
+#   fe        :3000   nginx-served Vite build, proxies /api to api:3001
+#   api       :3001   FastAPI, runs migrations + uvicorn
+#   worker            arq worker for workflow execution
+#   postgres  :3002   pgvector image, holds all app data + mem0 vectors
+#   redis     :3003   arq queue + memory pub/sub
+#   neo4j     :3004/3005  graph store for mem0 (browser + bolt)
+#
+# Every service is self-contained — no external internet required at
+# runtime beyond outbound LLM / GitHub / Telegram calls the workflows
+# themselves make.
+
+services:
+  api:
+    build: ./be_agent_orchestrator
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn app.main:app --host 0.0.0.0 --port 3001"
+    env_file: .env
+    environment:
+      # Override host-style URLs from .env so containers talk to each
+      # other by service name, not localhost.
+      DATABASE_URL: postgresql+asyncpg://agent:agent@postgres:3002/agent_orchestrator
+      REDIS_URL: redis://redis:3003/0
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: agentpass
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      neo4j:
+        condition: service_started
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  worker:
+    build: ./be_agent_orchestrator
+    command: uv run arq app.worker.arq_app.WorkerSettings
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent@postgres:3002/agent_orchestrator
+      REDIS_URL: redis://redis:3003/0
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: agentpass
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      neo4j:
+        condition: service_started
+      api:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+
+  fe:
+    build:
+      context: ./fe_agent_orchestrator
+      args:
+        # The browser fetches /api/v1/* — nginx (see fe nginx.conf) proxies
+        # to api:3001 inside the docker network, so the browser never
+        # sees the api container directly. Single-origin = no CORS pain.
+        VITE_API_BASE_URL: /api/v1
+    depends_on:
+      - api
+    ports:
+      # nginx in the FE image listens on 3000 (see nginx.conf).
+      - "3000:3000"
+    restart: unless-stopped
+
+  postgres:
+    # pgvector image = postgres:16 + the `vector` extension preinstalled.
+    # mem0's pgvector backend needs it; rest of the app uses the same DB.
+    image: pgvector/pgvector:pg16
+    command: ["postgres", "-p", "3002"]
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: agent_orchestrator
+      PGPORT: "3002"
+    ports:
+      - "3002:3002"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_orchestrator -p 3002"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--port", "3003"]
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+
+  # Local graph store for mem0. APOC plugin required by mem0's neo4j
+  # graph driver (procedures like apoc.coll.* are used internally).
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/agentpass
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+    ports:
+      - "3004:7474"   # Browser UI — http://localhost:3004
+      - "3005:7687"   # Bolt protocol — mem0 talks to this from inside the network
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  neo4j_logs:
